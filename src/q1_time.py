@@ -8,17 +8,17 @@ def q1_time(file_path: str) -> List[Tuple[datetime.date, str]]:
 
     # Select the desired columns
     df = data.select(pl.col("id"), pl.col('date').str.to_datetime().cast(pl.Date).alias("date"),
-                     pl.col("user").struct.field("username"))
+                     pl.col("user").struct.field("username").alias("username"))
 
     # Get the top 10 dates with most tweets
     dates_df = df.group_by("date").count().sort(by="count", descending=True).select("date").head(10)
 
     # Select only the rows within the respective dates
-    df = df.join(dates_df, on="date", how="inner").collect()
+    df = df.join(dates_df, on="date", how="inner")
 
     # For every date, select the user with the most tweets
     rows = df.group_by(["date", "username"]).count().with_columns(
         pl.col("count").rank(descending=True).over(["date"]).alias("rn")
-    ).filter(pl.col("rn") == 1).select(["date", "username"]).rows()
+    ).filter(pl.col("rn") == 1).select(["date", "username"]).collect().rows()
 
     return rows
