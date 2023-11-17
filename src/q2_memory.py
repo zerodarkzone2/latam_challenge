@@ -4,7 +4,9 @@ import emoji
 import json
 
 def q2_memory(file_path: str) -> List[Tuple[str, int]]:
+    # Create a counter object
     emoji_counter = Counter()
+    # Read the file line by line
     with open(file_path, "r") as jf:
         for line in jf:
             row = json.loads(line)
